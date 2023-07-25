@@ -2,9 +2,9 @@ import React, { useRef } from "react";
 import { dbs } from '../firebase.js';
 import { DocumentData, addDoc, collection, doc, getDoc, getDocs, getFirestore } from 'firebase/firestore';
 import firebase from 'firebase/compat/app';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { Timestamp } from "@firebase/firestore";
 import 'firebase/firestore';
-import 'firebase/auth';
 import 'firebase/storage';
 
 interface Todo {
@@ -13,13 +13,13 @@ interface Todo {
   isDone: boolean;
 }
 
-interface TodoData {
-  title: string;
-  isDone: boolean;
-  date: string | firebase.firestore.Timestamp;
+interface signUp {
+  email: string;
+  password: string;
 };
 
-export default function Test() {
+export default function Login() {
+  const auth = getAuth();
   const [data, setData] = React.useState<Todo[]>([]);
   const [isChecked, setIsChecked] = React.useState<boolean>(false);
   console.log(data)
@@ -30,22 +30,27 @@ export default function Test() {
   }
   let noteDate = Timestamp.fromDate(new Date());
 
-  // add
-  const messageRef = useRef<HTMLInputElement>(null);
+  // signin
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwdRef = useRef<HTMLInputElement>(null);
   const ref = collection(dbs, "todos");
 
-  const addTodo = (e: React.FormEvent) => {
+  const addUser = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(messageRef.current!.value);
+    console.log(emailRef.current!.value);
+    console.log(passwdRef.current!.value);
 
-    let data: TodoData = {
-        title: messageRef.current!.value,
-        isDone: false,
-        date: noteDate,
+    let data: signUp = {
+        // firstName: firstRef.current!.value,
+        // lastName: lastRef.current!.value,
+        email: emailRef.current!.value,
+        password: passwdRef.current!.value,
     };
 
     try {
-      addDoc(ref, data);
+      createUserWithEmailAndPassword(auth, data.email, data.password).then((userCredential) => {
+        console.log(userCredential,'userCredential')
+      })
     } catch (err) {
       console.log(err);
     }
@@ -83,23 +88,15 @@ export default function Test() {
     <div className="wrapper">
       <div className="container">
         <div>
-          <div style={{margin: 10, fontSize: 20}}>
-            <input id="ch1" type="checkbox" checked={isChecked} onChange={check}></input>
-            <label id="ch1" htmlFor="ch1">CheckBox1</label>
-          </div>
           
-          <div style={{margin: 10, fontSize: 20}}>
-            <input id="ch2" type="checkbox" checked={isChecked} onChange={check}></input>
-            <label id="ch2" htmlFor="ch2">CheckBox2</label>
-          </div>
-          
-          <div style={{margin: 10, fontSize: 20}}>
-            <input id="ch3" type="checkbox" checked={isChecked} onChange={check}></input>
-            <label id="ch3" htmlFor="ch3">CheckBox3</label>
-          </div>
+          <form onSubmit={addUser}>
+            <label htmlFor="email">email:</label>
+            <input type="text" id="email" name="email" ref={emailRef}/><br/>
+            <label htmlFor="passwd">password:</label>
+            <input type="text" id="passwd" name="passwd" ref={passwdRef}/><br/>
+            <input type="submit" value="Submit"/>
+          </form>
 
-          <input className="lama" ref={messageRef} type="text"/>
-          <button onClick={addTodo}>Add Todo</button>
         </div>
       </div>
     </div>
