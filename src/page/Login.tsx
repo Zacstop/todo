@@ -1,103 +1,107 @@
-import React, { useRef } from "react";
-import { dbs } from '../firebase.js';
-import { DocumentData, addDoc, collection, doc, getDoc, getDocs, getFirestore } from 'firebase/firestore';
-import firebase from 'firebase/compat/app';
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { Timestamp } from "@firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
 import 'firebase/firestore';
 import 'firebase/storage';
 
-interface Todo {
-  id?: string;
-  title: string;
-  isDone: boolean;
-}
-
-interface signUp {
+interface signIn {
   email: string;
   password: string;
-};
+}
 
 export default function Login() {
-  const auth = getAuth();
-  const [data, setData] = React.useState<Todo[]>([]);
-  const [isChecked, setIsChecked] = React.useState<boolean>(false);
-  console.log(data)
-
-  const check = () => {
-    setIsChecked(!isChecked)
-    fetchSweets();
-  }
-  let noteDate = Timestamp.fromDate(new Date());
-
+  const navigate = useNavigate();
+  const [value, setValue] = useState<string>('');
+  const [emailValue, setEmailValue] = useState<string>('');
+  const [passwordValue, setPasswordValue] = useState<string>('');
+  console.log(emailValue,'emailValue')
+  console.log(value, 'value')
+  
   // signin
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwdRef = useRef<HTMLInputElement>(null);
-  const ref = collection(dbs, "todos");
-
-  const addUser = (e: React.FormEvent) => {
+  const loginUser = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(emailRef.current!.value);
-    console.log(passwdRef.current!.value);
 
-    let data: signUp = {
-        // firstName: firstRef.current!.value,
-        // lastName: lastRef.current!.value,
-        email: emailRef.current!.value,
-        password: passwdRef.current!.value,
-    };
-
-    try {
-      createUserWithEmailAndPassword(auth, data.email, data.password).then((userCredential) => {
-        console.log(userCredential,'userCredential')
-      })
-    } catch (err) {
-      console.log(err);
-    }
+    console.log(emailValue,'emailValue')
+    signInWithEmailAndPassword(auth, emailValue, passwordValue)
+    .then((userCredential) => {
+      // Signed in 
+      const user = userCredential.user;
+      console.log(userCredential,'userCredential')
+      setValue(user.email!)
+      navigate('/')
+    })
+    .catch((error) => {
+      switch (error.code || error.message) {
+        case "auth/user-not-found" || "auth/wrong-password" || "INVALID_PASSWORD":
+          alert("이메일 혹은 비밀번호가 일치하지 않습니다.")
+          break;
+        case "auth/too-many-requests":
+          alert("너무 많은 요청입니다. 잠시 후에 다시 시도해주세요.")
+          break;
+        case "auth/network-request-failed":
+          alert("네트워크 연결에 실패 하였습니다.")
+          break;
+        case "auth/invalid-email":
+          alert("잘못된 이메일 형식입니다.")
+          break;
+        case "auth/internal-error":
+          alert("잘못된 요청입니다.")
+          break;
+        default:
+          alert("로그인에 실패 하였습니다.")
+          break;
+      }
+    });
   }
-  // 
+  //
 
-  const dbService = getFirestore();
-  const lama: Object[] = [];
-
-  const todoRef = doc(collection(dbs, 'todos'), 'todo1');
-  console.log(todoRef)
-
-  async function fetchSweets() {
-    const db = await getDocs(collection(dbService, "todos")).then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
-        console.log(doc.data());
-        const todoData = doc.data() as Partial<Todo>;
-
-        lama.push({
-          id: doc.id,
-          title: todoData.title ?? '',
-          isDone: todoData.isDone ?? false,
-        });
-
-        // lama.push({...doc.data()});
-        // setData(lama)
-        console.log(lama);
-        console.log(doc.data());
-      });
+  const googleLogin = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider).then((result) => {
+      setValue(result.user.email)
+      localStorage.setItem('email', result.user?.email!)
+      console.log(result,'result')
+    }).catch((error) => {
+      console.log(error,'error')
     });
   }
 
-  return (
-    <div className="wrapper">
-      <div className="container">
-        <div>
-          
-          <form onSubmit={addUser}>
-            <label htmlFor="email">email:</label>
-            <input type="text" id="email" name="email" ref={emailRef}/><br/>
-            <label htmlFor="passwd">password:</label>
-            <input type="text" id="passwd" name="passwd" ref={passwdRef}/><br/>
-            <input type="submit" value="Submit"/>
-          </form>
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => 
+      console.log(user,'user')
+    );
 
-        </div>
+    // Clean up subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  return (
+    <div className="center-screen">
+      <div>
+        
+          <div>
+            
+            <form onSubmit={loginUser}>
+              <label htmlFor="email">email:</label>
+              <input type="email" id="email" name="email" onChange={(e) => setEmailValue(e.target.value)}/><br/>
+              <label htmlFor="passwd">password:</label>
+              <input type="password" id="passwd" name="passwd" onChange={(e) => setPasswordValue(e.target.value)}/><br/>
+              <input type="submit" value="Submit"/>
+            </form>
+
+            <div>
+              <button style={{width: '100%', height: 50, color: "#fff", background: "coral", marginTop: 10}} onClick={googleLogin}>google login</button>
+            </div>
+
+            <div>
+              <Link to={'/signup'}>
+                <button style={{width: '100%', height: 50, color: "#fff", background: "pink", marginTop: 10}}>sign up</button>
+              </Link>
+            </div>
+
+          </div>
+        
       </div>
     </div>
   );
