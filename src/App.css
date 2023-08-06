@@ -1,10 +1,13 @@
-.App {
-  text-align: center;
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#root {
+  /* font-family: "Pretendard"; */
+  font-family: Familjen Grotesk;
 }
 
 /* .wrapper {
@@ -32,3 +35,113 @@
   align-items: center;
   text-align: center;
 }
+
+/* 404 */
+.error404 {
+  width: 100%;
+  height: 100vh;
+  color: #000;
+  background-color: #CDCDCD;
+}
+
+/* login */
+.lama {
+  height: auto;
+}
+.loginForm {
+  display: flex;
+  flex-direction: column;
+}
+.inputLogFrom {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.logLabel {
+  color: #B1B1B1;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 200% */
+}
+.logInput {
+  display: flex;
+  width: 390px;
+  padding: 12px 24px 12px 18px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 8px;
+  border: 1px solid #B1B1B1;
+  margin-bottom: 16px;
+}
+.loginBtn {
+  display: flex;
+  width: 100%;
+  padding: 15px 24px 15px 18px;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2A08F8;
+  color: #fff;
+  margin: 24px 0px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.googleLoginBtn {
+  display: flex;
+  width: 350px;
+  padding: 2px 41px;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  border-radius: 8px;
+  border: 1px solid #B1B1B1;
+  cursor: pointer;
+}
+.googleLoginBtn .gicon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+ }
+.googleLoginBtn .gtext {
+  color: #000;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 10px; /* 150% */
+}
+.signUpTypo {
+  color: #D1D1D1;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 200% */
+}
+.signUpTypo p {
+  color: #000;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px;
+  width: auto;
+}
+.signUpMark {
+  font-weight: "700";
+  background-color: "transparent"; 
+  padding-left: 10
+}
+
+/* SignUp */
+.askSignUp {
+  color: #000;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin-bottom: 30px;
+}
+
+/* todolist */

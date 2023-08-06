@@ -9,6 +9,7 @@ import 'firebase/firestore';
 import 'firebase/storage';
 import 'firebase/auth';
 import delIcon from '../assets/images/icons/trash-can.png';
+import Header from "components/Header";
 
 interface Todo {
   id: string;
@@ -45,7 +46,6 @@ export default function Home() {
   const [user, setUser] = useState<User>();
   const [data, setData] = useState<Todo[]>([]);
   const [change, setChange] = useState('');
-  // const isEmpty = data.length === 0;
   const isEmpty = !data || data.length === 0
   console.log(data, 'outData')
   
@@ -76,9 +76,9 @@ export default function Home() {
     console.log(messageRef.current!.value);
 
     const data: TodoData = {
-        title: messageRef.current!.value,
-        isDone: false,
-        date: noteDate,
+      title: messageRef.current!.value,
+      isDone: false,
+      date: noteDate,
     };
 
     try {
@@ -159,7 +159,6 @@ export default function Home() {
         setUser(userObj)
       }
     );
-
     // Clean up subscription on unmount
     unsubscribe();
     getData();
@@ -169,9 +168,10 @@ export default function Home() {
 
   return (
     <div>
-      <div className="center-screen">
-        <div className="container">
-          <div>
+      <div className="container">
+        <div>
+          <Header/>
+          <div style={{maxWidth: 700, width: "100%", height: "100vh", margin: "0 auto"}}>
             {user ?
               <div>Logged in as {user.email}</div>
               :
@@ -182,11 +182,6 @@ export default function Home() {
           </div>
 
           <div>
-            <div key={'ch1'} style={{margin: 10, fontSize: 20}}>
-              <input id="ch1" type="checkbox"></input>
-              <label id="ch1" htmlFor="ch1">CheckBox1</label>
-            </div>
-
             {isEmpty ? 
               <div>loading...</div>
               : 

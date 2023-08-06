@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { UserCredential } from "@firebase/auth"
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import 'firebase/firestore';
 import 'firebase/storage';
+import googleIcon from "../assets/images/icons/google-sign-button.png"
 
 interface signIn {
   email: string;
@@ -32,6 +34,8 @@ export default function Login() {
       navigate('/')
     })
     .catch((error) => {
+      console.log(error.code)
+      console.log(error.message)
       switch (error.code || error.message) {
         case "auth/user-not-found" || "auth/wrong-password" || "INVALID_PASSWORD":
           alert("이메일 혹은 비밀번호가 일치하지 않습니다.")
@@ -58,9 +62,13 @@ export default function Login() {
 
   const googleLogin = () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider).then((result) => {
-      setValue(result.user.email)
-      localStorage.setItem('email', result.user?.email!)
+
+    signInWithPopup(auth, provider).then((result: UserCredential) => {
+      if (result.user && result.user.email) {
+        setValue(result.user.email)
+        localStorage.setItem('email', result.user.email)
+        navigate('/')
+      }
       console.log(result,'result')
     }).catch((error) => {
       console.log(error,'error')
@@ -78,28 +86,35 @@ export default function Login() {
 
   return (
     <div className="center-screen">
+    <div className="askSignUp">You must sign in to join</div>
       <div>
-        
-          <div>
             
-            <form onSubmit={loginUser}>
-              <label htmlFor="email">email:</label>
-              <input type="email" id="email" name="email" onChange={(e) => setEmailValue(e.target.value)}/><br/>
-              <label htmlFor="passwd">password:</label>
-              <input type="password" id="passwd" name="passwd" onChange={(e) => setPasswordValue(e.target.value)}/><br/>
-              <input type="submit" value="Submit"/>
-            </form>
-
-            <div>
-              <button style={{width: '100%', height: 50, color: "#fff", background: "coral", marginTop: 10}} onClick={googleLogin}>google login</button>
+          <form className="loginForm" onSubmit={loginUser}>
+            <div className="inputLogFrom">
+              <label className="logLabel" htmlFor="email">E-Mail:</label>
+              <input className="logInput" type="email" id="email" name="email" onChange={(e) => setEmailValue(e.target.value)}/>
             </div>
-
-            <div>
-              <Link to={'/signup'}>
-                <button style={{width: '100%', height: 50, color: "#fff", background: "pink", marginTop: 10}}>sign up</button>
-              </Link>
+            <div className="inputLogFrom">
+              <label className="logLabel" htmlFor="passwd">Password:</label>
+              <input className="logInput" type="password" id="passwd" name="passwd" onChange={(e) => setPasswordValue(e.target.value)}/>
             </div>
+            <input className="loginBtn" type="submit" value="Sign in"/>
+          </form>
 
+          <div className="googleLoginBtn" onClick={googleLogin}>
+            <img src={googleIcon} className="gicon"/>
+            <p className="gtext">Sign in with Google</p>
+          </div>
+
+          <div className="signUpTypo">
+            <p>
+              Don`t have an account?
+              <mark style={{fontWeight: "700", backgroundColor: "transparent", paddingLeft: 10}}>
+                <Link to={'/signup'}>
+                  Sign up
+                </Link>
+              </mark>
+            </p>
           </div>
         
       </div>

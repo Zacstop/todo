@@ -1,7 +1,8 @@
-export default {
+module.exports = {
   env: {
     browser: true,
     es2021: true,
+    node: true,
   },
   extends: [
     'eslint:recommended',
@@ -17,5 +18,10 @@ export default {
     sourceType: 'module',
   },
   plugins: ['react', '@typescript-eslint'],
-  rules: {},
+  rules: {
+    'no-undef': 'off',
+    'react/prop-types': 'off',
+    'react/no-unescaped-entities': 0,
+    'react/react-in-jsx-scope': 'off',
+  },
 };

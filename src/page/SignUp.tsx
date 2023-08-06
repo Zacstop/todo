@@ -1,5 +1,4 @@
-import React, { useRef } from "react";
-import firebase from 'firebase/compat/app';
+import React, { useRef, useState } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import 'firebase/firestore';
 import 'firebase/storage';
@@ -7,22 +6,24 @@ import 'firebase/storage';
 interface signUp {
   email: string;
   password: string;
-};
+}
 
 export default function SignUp() {
   const auth = getAuth();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwdRef = useRef<HTMLInputElement>(null);
+  const [emailValue, setEmailValue] = useState<string>('');
+  const [passwordValue, setPasswordValue] = useState<string>('');
   
   // signup
   const addUser = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(emailRef.current!.value);
-    console.log(passwdRef.current!.value);
+    console.log(emailValue);
+    console.log(passwordValue);
 
-    let data: signUp = {
-        email: emailRef.current!.value,
-        password: passwdRef.current!.value,
+    const data: signUp = {
+        email: emailValue,
+        password: passwordValue,
     };
 
     try {
@@ -38,15 +39,29 @@ export default function SignUp() {
   return (
     <div className="center-screen">
       <div>
+        <div className="askSignUp">You must sign up to join</div>
         <div>
-          
-          <form onSubmit={addUser}>
-            <label htmlFor="email">email:</label>
-            <input type="text" id="email" name="email" ref={emailRef}/><br/>
-            <label htmlFor="passwd">password:</label>
-            <input type="text" id="passwd" name="passwd" ref={passwdRef}/><br/>
-            <input type="submit" value="Submit"/>
+
+          <form className="loginForm" onSubmit={addUser}>
+            <div className="inputLogFrom">
+              <label className="logLabel" htmlFor="email">E-Mail:</label>
+              <input className="logInput" type="email" id="email" name="email" onChange={(e) => setEmailValue(e.target.value)}/>
+            </div>
+            <div className="inputLogFrom">
+              <label className="logLabel" htmlFor="passwd">Password:</label>
+              <input className="logInput" type="password" id="passwd" name="passwd" onChange={(e) => setPasswordValue(e.target.value)}/>
+            </div>
+            <input className="loginBtn" type="submit" value="Sign up"/>
           </form>
+
+          <div className="signUpTypo">
+            <p>
+              Don`t have an account?
+              <mark className="signUpMark">
+                Sign up
+              </mark>
+            </p>
+          </div>
 
         </div>
       </div>
