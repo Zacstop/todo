@@ -145,3 +145,19 @@
 }
 
 /* todolist */
+input[type="checkbox"] {
+  display: none;
+}
+.labela {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #bcbcbc;
+	cursor: pointer;
+}
+.todo-container {
+  margin: 14px;
+  font-size: 20px;
+  display: "flex";
+  align-items: "center"
+}

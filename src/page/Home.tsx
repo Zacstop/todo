@@ -50,8 +50,9 @@ export default function Home() {
   console.log(data, 'outData')
   
   const messageRef = useRef<HTMLInputElement>(null);
-  const ref = collection(db, "todos");
   const noteDate = Timestamp.fromDate(new Date());
+  const ref = collection(db, "todos");
+  const dbs = firebase.firestore();
 
   // get
   const getData = async () => {
@@ -61,6 +62,14 @@ export default function Home() {
         id: doc.id,
         ...doc.data(),
       })) as Todo[];
+
+      const goalDocRef = dbs.collection('Goals').doc('x4UtM0pDjehRuMxBLeQC');
+      const todoItemsCollectionRef = goalDocRef.collection('TodoItems');
+      const snapshot = await todoItemsCollectionRef.get();
+
+      const items = snapshot.docs.map((doc: { data: () => any; }) => doc.data());
+      console.log(items,'items')
+
       setData(filteredData);
       console.log(filteredData)
       console.log(data, 'getData')
@@ -172,34 +181,39 @@ export default function Home() {
         <div>
           <Header/>
           <div style={{maxWidth: 700, width: "100%", height: "100vh", margin: "0 auto"}}>
-            {user ?
-              <div>Logged in as {user.email}</div>
-              :
-              <div>Not logged in</div>
-            }
-            <div style={{fontSize: 30}}>Home Page</div>
-            <button onClick={logOut}>log out</button>
-          </div>
+            <div>
+              {user ?
+                <div>Logged in as {user.email}</div>
+                :
+                <div>Not logged in</div>
+              }
+              <div style={{fontSize: 30}}>Home Page</div>
+              <button onClick={logOut}>log out</button>
+            </div>
 
-          <div>
-            {isEmpty ? 
-              <div>loading...</div>
-              : 
-              <>
-                {data.map((todo) => (
-                  <div key={todo.id} style={{margin: 10, fontSize: 20}}>
-                    <input id={todo.id} type="checkbox" checked={todo.isDone} onChange={() => isClear(todo)} />
-                    <label id={todo.id} htmlFor={todo.id}>{todo.title}</label>
-                    <button onClick={() => deleteTodo(todo.id!)}><img src={delIcon} alt="del" style={{width: "100%", height: 20}}/></button>
-                    <input type="text" placeholder="변경명" onChange={(e) => setChange(e.target.value)}></input>
-                    <button onClick={() => modTodo(todo)}>수정</button>
-                  </div>
-                ))}
-              </>
-            }
+            <div>
+              {isEmpty ? 
+                <div>loading...</div>
+                :
+                <>
+                  {data.map((todo) => (
+                    <div key={todo.id} className="todo-container">
+                      <input id={todo.id} type="checkbox" checked={todo.isDone} onChange={() => isClear(todo)} style={{}}/>
+                      <label className="labela" htmlFor={todo.id} id={todo.id}></label>
+                      <span>{todo.title}</span>
+                      <button onClick={() => deleteTodo(todo.id)}>
+                        <img src={delIcon} alt="del" style={{width: "100%", height: 20}}/>
+                      </button>
+                      <input type="text" placeholder="변경명" onChange={(e) => setChange(e.target.value)}></input>
+                      <button onClick={() => modTodo(todo)}>수정</button>
+                    </div>
+                  ))}
+                </>
+              }
 
-            <input ref={messageRef} type="text"/>
-            <button onClick={addTodo}>Add Todo</button>
+              <input ref={messageRef} type="text"/>
+              <button onClick={addTodo}>Add Todo</button>
+            </div>
           </div>
         </div>
       </div>
