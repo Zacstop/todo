@@ -8,7 +8,9 @@ import firebase from 'firebase/compat/app';
 import 'firebase/firestore';
 import 'firebase/storage';
 import 'firebase/auth';
+import modIcon from '../assets/images/icons/pencil.png';
 import delIcon from '../assets/images/icons/trash-can.png';
+import optionIcon from '../assets/images/icons/option.png';
 import Header from "components/Header";
 
 interface Todo {
@@ -46,13 +48,13 @@ export default function Home() {
   const [user, setUser] = useState<User>();
   const [data, setData] = useState<Todo[]>([]);
   const [change, setChange] = useState('');
+  const [isChange, setIsChange] = useState(false)
   const isEmpty = !data || data.length === 0
   console.log(data, 'outData')
   
   const messageRef = useRef<HTMLInputElement>(null);
   const noteDate = Timestamp.fromDate(new Date());
   const ref = collection(db, "todos");
-  const dbs = firebase.firestore();
 
   // get
   const getData = async () => {
@@ -62,13 +64,6 @@ export default function Home() {
         id: doc.id,
         ...doc.data(),
       })) as Todo[];
-
-      const goalDocRef = dbs.collection('Goals').doc('x4UtM0pDjehRuMxBLeQC');
-      const todoItemsCollectionRef = goalDocRef.collection('TodoItems');
-      const snapshot = await todoItemsCollectionRef.get();
-
-      const items = snapshot.docs.map((doc: { data: () => any; }) => doc.data());
-      console.log(items,'items')
 
       setData(filteredData);
       console.log(filteredData)
@@ -200,12 +195,21 @@ export default function Home() {
                     <div key={todo.id} className="todo-container">
                       <input id={todo.id} type="checkbox" checked={todo.isDone} onChange={() => isClear(todo)} style={{}}/>
                       <label className="labela" htmlFor={todo.id} id={todo.id}></label>
-                      <span>{todo.title}</span>
+                      {isChange ? 
+                        (
+                          <input type="text" placeholder="변경명" onChange={(e) => setChange(e.target.value)}></input>
+                        ) : (
+                        <span style={{width: "100%", backgroundColor: "#EBEBEB", cursor: "pointer"}}>{todo.title}</span>
+                        )
+                      }
+                      <button onClick={() => {console.log('!'), setIsChange(!isChange)}}>
+                        <img src={modIcon} alt="modi" style={{width: "auto", height: 20}}/>
+                      </button>
                       <button onClick={() => deleteTodo(todo.id)}>
                         <img src={delIcon} alt="del" style={{width: "100%", height: 20}}/>
                       </button>
-                      <input type="text" placeholder="변경명" onChange={(e) => setChange(e.target.value)}></input>
-                      <button onClick={() => modTodo(todo)}>수정</button>
+                      {/* <input type="text" placeholder="변경명" onChange={(e) => setChange(e.target.value)}></input>
+                      <button onClick={() => modTodo(todo)}>수정</button> */}
                     </div>
                   ))}
                 </>
