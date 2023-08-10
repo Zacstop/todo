@@ -23,6 +23,7 @@ interface TodoData {
   title: string;
   isDone: boolean;
   date: string | firebase.firestore.Timestamp;
+  userId: string | undefined;
 }
 
 interface User {
@@ -49,8 +50,10 @@ export default function Home() {
   const [data, setData] = useState<Todo[]>([]);
   const [change, setChange] = useState('');
   const [isChange, setIsChange] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null);
   const isEmpty = !data || data.length === 0
   console.log(data, 'outData')
+  console.log(editingId, 'editingId')
   
   const messageRef = useRef<HTMLInputElement>(null);
   const noteDate = Timestamp.fromDate(new Date());
@@ -66,8 +69,6 @@ export default function Home() {
       })) as Todo[];
 
       setData(filteredData);
-      console.log(filteredData)
-      console.log(data, 'getData')
     } catch (err) {
       console.log(err);
     }
@@ -83,7 +84,9 @@ export default function Home() {
       title: messageRef.current!.value,
       isDone: false,
       date: noteDate,
+      userId: auth?.currentUser?.uid
     };
+    console.log(data)
 
     try {
       await addDoc(ref, data);
@@ -104,6 +107,8 @@ export default function Home() {
       }
       try {
         await updateDoc(doc(db, "todos", todo.id), {title: change});
+        setChange('');
+        setEditingId(null);
         getData();
       } catch (err) {
         console.log(err);
@@ -154,7 +159,6 @@ export default function Home() {
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-        console.log(user,'userauth')
         if (!user) {
           navigate('/login')
         }
@@ -195,18 +199,24 @@ export default function Home() {
                     <div key={todo.id} className="todo-container">
                       <input id={todo.id} type="checkbox" checked={todo.isDone} onChange={() => isClear(todo)} style={{}}/>
                       <label className="labela" htmlFor={todo.id} id={todo.id}></label>
-                      {isChange ? 
-                        (
-                          <input type="text" placeholder="변경명" onChange={(e) => setChange(e.target.value)}></input>
+                      {editingId === todo.id ? (
+                        <>
+                          <input className="todo" type="text" defaultValue={todo.title} onChange={(e) => setChange(e.target.value)}/>
+                          <button onClick={() => modTodo(todo)}>
+                            <img src={modIcon} alt="modi" style={{width: "auto", height: 20}}/>
+                          </button>
+                        </>
                         ) : (
-                        <span style={{width: "100%", backgroundColor: "#EBEBEB", cursor: "pointer"}}>{todo.title}</span>
+                          <>
+                            <span className="todo">{todo.title}</span>
+                            <button onClick={() => {editingId === null ? setEditingId(todo.id) : setEditingId(null)}}>
+                              <img src={modIcon} alt="modi" style={{width: "auto", height: 20}}/>
+                            </button>
+                          </>
                         )
                       }
-                      <button onClick={() => {console.log('!'), setIsChange(!isChange)}}>
-                        <img src={modIcon} alt="modi" style={{width: "auto", height: 20}}/>
-                      </button>
                       <button onClick={() => deleteTodo(todo.id)}>
-                        <img src={delIcon} alt="del" style={{width: "100%", height: 20}}/>
+                        <img src={delIcon} alt="del" style={{width: "auto", height: 20}}/>
                       </button>
                       {/* <input type="text" placeholder="변경명" onChange={(e) => setChange(e.target.value)}></input>
                       <button onClick={() => modTodo(todo)}>수정</button> */}
