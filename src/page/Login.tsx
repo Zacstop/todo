@@ -7,16 +7,11 @@ import 'firebase/firestore';
 import 'firebase/storage';
 import googleIcon from "../assets/images/icons/google-sign-button.png"
 
-interface signIn {
-  email: string;
-  password: string;
-}
-
 export default function Login() {
   const navigate = useNavigate();
-  const [value, setValue] = useState<string>('');
-  const [emailValue, setEmailValue] = useState<string>('');
-  const [passwordValue, setPasswordValue] = useState<string>('');
+  const [value, setValue] = useState('');
+  const [emailValue, setEmailValue] = useState('');
+  const [passwordValue, setPasswordValue] = useState('');
   console.log(emailValue,'emailValue')
   console.log(value, 'value')
   
@@ -68,6 +63,12 @@ export default function Login() {
         setValue(result.user.email)
         localStorage.setItem('email', result.user.email)
         navigate('/')
+        const user = auth.currentUser;
+        if (user) {
+          user.getIdToken(true).then((idToken) => {
+            console.log("Token refreshed:", idToken);
+          });
+        }
       }
       console.log(result,'result')
     }).catch((error) => {

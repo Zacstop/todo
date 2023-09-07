@@ -8,6 +8,7 @@
 #root {
   /* font-family: "Pretendard"; */
   font-family: Familjen Grotesk;
+  user-select: none;
 }
 
 /* .wrapper {
